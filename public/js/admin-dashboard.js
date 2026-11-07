@@ -24,6 +24,7 @@ const cursoresPagina = [null];
 let indicePagina = 0;
 let siguienteCursor = null;
 let solicitudEnCurso = false;
+let eliminacionEnCurso = false;
 let usuarioAutenticado = null;
 
 function mostrarEstadoInicial(mensaje, permitirReintento = false) {
@@ -44,13 +45,15 @@ function crearError(codigo, mensaje) {
   return error;
 }
 
-async function consultarEndpointAdmin(ruta) {
+async function consultarEndpointAdmin(ruta, opciones = {}) {
   const token = await obtenerTokenAdministrador();
   let respuesta;
 
   try {
     respuesta = await fetch(ruta, {
+      ...opciones,
       headers: {
+        ...opciones.headers,
         Authorization: `Bearer ${token}`,
       },
     });
@@ -64,6 +67,10 @@ async function consultarEndpointAdmin(ruta) {
 
   if (respuesta.status === 403) {
     throw crearError('backend/forbidden', 'La cuenta no tiene permisos de administrador.');
+  }
+
+  if (respuesta.status === 400) {
+    throw crearError('backend/bad-request', 'La solicitud no pudo completarse.');
   }
 
   if (!respuesta.ok) {
@@ -149,6 +156,8 @@ function obtenerUrlMiniatura(valor) {
 function crearTarjetaFotografia(fotografia) {
   if (
     !fotografia
+    || typeof fotografia.id !== 'string'
+    || !fotografia.id
     || typeof fotografia.nombreOriginal !== 'string'
     || typeof fotografia.urlMiniatura !== 'string'
   ) {
@@ -179,6 +188,19 @@ function crearTarjetaFotografia(fotografia) {
     fecha.textContent = convertirFechaLegible(fotografia.fechaSubida);
     detalles.append(fecha);
   }
+
+  const botonEliminar = document.createElement('button');
+  botonEliminar.className = 'boton boton--eliminar';
+  botonEliminar.type = 'button';
+  botonEliminar.textContent = 'Eliminar';
+  botonEliminar.setAttribute(
+    'aria-label',
+    `Eliminar fotografía: ${fotografia.nombreOriginal}`,
+  );
+  botonEliminar.addEventListener('click', () => {
+    eliminarFotografia(fotografia.id, fotografia.nombreOriginal, tarjeta, botonEliminar);
+  });
+  detalles.append(botonEliminar);
 
   tarjeta.append(imagen, detalles);
   return tarjeta;
@@ -222,9 +244,14 @@ function validarRespuestaEstadisticas(resultado) {
 }
 
 function actualizarControles() {
-  botonPaginaAnterior.disabled = solicitudEnCurso || indicePagina === 0;
-  botonPaginaSiguiente.disabled = solicitudEnCurso || !siguienteCursor;
-  botonActualizar.disabled = solicitudEnCurso;
+  const controlesOcupados = solicitudEnCurso || eliminacionEnCurso;
+  botonPaginaAnterior.disabled = controlesOcupados || indicePagina === 0;
+  botonPaginaSiguiente.disabled = controlesOcupados || !siguienteCursor;
+  botonActualizar.disabled = controlesOcupados;
+  botonCerrarSesion.disabled = controlesOcupados;
+  contenedorGaleria.querySelectorAll('.boton--eliminar').forEach((boton) => {
+    boton.disabled = controlesOcupados;
+  });
   indicadorPagina.textContent = `Página ${indicePagina + 1}`;
 }
 
@@ -242,34 +269,47 @@ async function solicitarPagina(cursor) {
   return resultado;
 }
 
-async function actualizarInformacion(reiniciarPaginacion = false) {
-  if (solicitudEnCurso) {
-    return;
+async function actualizarInformacion(
+  reiniciarPaginacion = false,
+  duranteEliminacion = false,
+) {
+  if (solicitudEnCurso || (eliminacionEnCurso && !duranteEliminacion)) {
+    return false;
   }
 
   solicitudEnCurso = true;
   actualizarControles();
   mostrarEstadoFotografias('Cargando fotografías…');
 
-  const cursorDestino = reiniciarPaginacion ? null : cursoresPagina[indicePagina];
-
   try {
-    const [estadisticas, pagina] = await Promise.all([
+    let indiceDestino = reiniciarPaginacion ? 0 : indicePagina;
+    let [estadisticas, pagina] = await Promise.all([
       consultarEndpointAdmin('/api/admin/estadisticas'),
-      solicitarPagina(cursorDestino),
+      solicitarPagina(
+        reiniciarPaginacion ? null : cursoresPagina[indiceDestino],
+      ),
     ]);
+
+    if (pagina.fotografias.length === 0 && indiceDestino > 0) {
+      indiceDestino -= 1;
+      pagina = await solicitarPagina(cursoresPagina[indiceDestino]);
+    }
 
     validarRespuestaEstadisticas(estadisticas);
     mostrarFotografias(pagina.fotografias);
+
+    indicePagina = indiceDestino;
+    if (reiniciarPaginacion) {
+      cursoresPagina.splice(0, cursoresPagina.length, null);
+    }
 
     totalFotografias.textContent = new Intl.NumberFormat('es-MX')
       .format(estadisticas.totalFotografias);
     ultimaSubida.textContent = convertirFechaLegible(estadisticas.fechaUltimaSubida);
     siguienteCursor = pagina.siguienteCursor;
 
-    if (reiniciarPaginacion) {
-      cursoresPagina.splice(0, cursoresPagina.length, null);
-      indicePagina = 0;
+    if (eliminacionEnCurso) {
+      cursoresPagina.splice(indicePagina + 1);
     }
 
     if (pagina.fotografias.length === 0) {
@@ -277,8 +317,38 @@ async function actualizarInformacion(reiniciarPaginacion = false) {
     } else {
       mostrarEstadoFotografias('');
     }
+    return true;
   } catch (error) {
+    if (
+      eliminacionEnCurso
+      && indicePagina > 0
+      && error.code === 'backend/bad-request'
+    ) {
+      try {
+        const [estadisticas, pagina] = await Promise.all([
+          consultarEndpointAdmin('/api/admin/estadisticas'),
+          solicitarPagina(null),
+        ]);
+        validarRespuestaEstadisticas(estadisticas);
+        mostrarFotografias(pagina.fotografias);
+        indicePagina = 0;
+        cursoresPagina.splice(0, cursoresPagina.length, null);
+        totalFotografias.textContent = new Intl.NumberFormat('es-MX')
+          .format(estadisticas.totalFotografias);
+        ultimaSubida.textContent = convertirFechaLegible(estadisticas.fechaUltimaSubida);
+        siguienteCursor = pagina.siguienteCursor;
+        mostrarEstadoFotografias(
+          pagina.fotografias.length === 0 ? 'No hay fotografías para mostrar.' : '',
+        );
+        return true;
+      } catch (errorRecarga) {
+        await manejarError(errorRecarga, 'fotografias');
+        return false;
+      }
+    }
+
     await manejarError(error, 'fotografias');
+    return false;
   } finally {
     solicitudEnCurso = false;
     actualizarControles();
@@ -286,7 +356,7 @@ async function actualizarInformacion(reiniciarPaginacion = false) {
 }
 
 async function cambiarPagina(indiceDestino, cursorDestino) {
-  if (solicitudEnCurso) {
+  if (solicitudEnCurso || eliminacionEnCurso) {
     return;
   }
 
@@ -307,6 +377,65 @@ async function cambiarPagina(indiceDestino, cursorDestino) {
     await manejarError(error, 'fotografias');
   } finally {
     solicitudEnCurso = false;
+    actualizarControles();
+  }
+}
+
+async function eliminarFotografia(id, nombreOriginal, tarjeta, boton) {
+  if (solicitudEnCurso || eliminacionEnCurso) {
+    return;
+  }
+
+  const confirmacion = window.confirm(
+    `¿Eliminar permanentemente "${nombreOriginal}"? Esta fotografía dejará de estar disponible en la galería pública.`,
+  );
+
+  if (!confirmacion) {
+    return;
+  }
+
+  eliminacionEnCurso = true;
+  boton.disabled = true;
+  boton.classList.add('boton--eliminando');
+  boton.setAttribute('aria-busy', 'true');
+  boton.textContent = 'Eliminando…';
+  actualizarControles();
+  mostrarEstadoFotografias('Eliminando fotografía…');
+
+  try {
+    await consultarEndpointAdmin(
+      `/api/admin/fotografias/${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
+    );
+
+    const informacionActualizada = await actualizarInformacion(false, true);
+
+    if (informacionActualizada) {
+      mostrarEstadoFotografias('La fotografía se eliminó correctamente.');
+    } else {
+      tarjeta.remove();
+      mostrarEstadoFotografias(
+        'La fotografía se eliminó, pero no se pudo actualizar el resto de la información. Pulsa «Actualizar información».',
+        true,
+      );
+    }
+  } catch (error) {
+    if (error.code === 'backend/unauthorized' || error.code === 'backend/forbidden') {
+      await manejarError(error, 'fotografias');
+    } else {
+      mostrarEstadoFotografias(
+        'No fue posible eliminar la fotografía. Inténtalo nuevamente.',
+        true,
+      );
+    }
+  } finally {
+    eliminacionEnCurso = false;
+    if (boton.isConnected) {
+      boton.disabled = false;
+      boton.classList.remove('boton--eliminando');
+      boton.removeAttribute('aria-busy');
+      boton.textContent = 'Eliminar';
+    }
     actualizarControles();
   }
 }

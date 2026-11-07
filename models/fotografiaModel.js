@@ -152,3 +152,22 @@ export async function obtenerFotografiaPorId(id) {
     ...documento.data(),
   };
 }
+
+export async function eliminarFotografiaPorId(id) {
+  if (typeof id !== 'string' || !id.trim() || id.includes('/')) {
+    throw new TypeError('El ID de la fotografía debe ser un texto no vacío.');
+  }
+
+  const referencia = db.collection(COLECCION_FOTOGRAFIAS).doc(id);
+
+  return db.runTransaction(async (transaccion) => {
+    const documento = await transaccion.get(referencia);
+
+    if (!documento.exists) {
+      return false;
+    }
+
+    transaccion.delete(referencia);
+    return true;
+  });
+}

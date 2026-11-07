@@ -89,3 +89,25 @@ export async function subirFotografiaCloudinary(archivo) {
     tamano: archivo.size,
   };
 }
+
+export async function eliminarFotografiaCloudinary(publicId) {
+  if (typeof publicId !== 'string' || !publicId.trim()) {
+    throw new TypeError('El identificador público de la fotografía no es válido.');
+  }
+
+  let resultado;
+
+  try {
+    resultado = await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'image',
+    });
+  } catch {
+    throw new Error('No fue posible confirmar la eliminación en el servicio de imágenes.');
+  }
+
+  if (resultado?.result === 'ok' || resultado?.result === 'not found') {
+    return resultado.result;
+  }
+
+  throw new Error('El servicio de imágenes no confirmó la eliminación de la fotografía.');
+}

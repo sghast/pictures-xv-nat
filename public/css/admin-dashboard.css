@@ -213,6 +213,29 @@ body::after {
   color: var(--color-azul);
 }
 
+.boton--eliminar {
+  min-height: 2.5rem;
+  margin-top: 0.65rem;
+  border-color: rgb(133 45 66 / 35%);
+  background: #fff;
+  color: var(--color-error);
+}
+
+.boton--eliminando {
+  gap: 0.55rem;
+  cursor: wait;
+}
+
+.boton--eliminando::before {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid rgb(133 45 66 / 25%);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  content: "";
+  animation: girar 800ms linear infinite;
+}
+
 .boton:disabled {
   opacity: 0.48;
   cursor: not-allowed;
@@ -410,6 +433,11 @@ body::after {
   .boton--secundario:not(:disabled):hover {
     border-color: var(--color-azul);
     background: #f3f6fa;
+  }
+
+  .boton--eliminar:not(:disabled):hover {
+    border-color: var(--color-error);
+    background: #fff5f6;
   }
 }
 
