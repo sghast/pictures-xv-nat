@@ -1,0 +1,220 @@
+:root {
+  color-scheme: light;
+  font-family: Montserrat, "Segoe UI", sans-serif;
+  color: #302541;
+  background: #f7f3fa;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --color-morado: #542a6d;
+  --color-dorado: #b47c24;
+  --color-azul: #315881;
+  --color-texto: #302541;
+  --color-secundario: #51495e;
+  --color-error: #852d42;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at 9% 12%, rgb(222 212 239 / 55%), transparent 29rem),
+    radial-gradient(ellipse at 92% 20%, rgb(209 224 241 / 52%), transparent 32rem),
+    linear-gradient(145deg, #f8f4fb 0%, #f1edf8 48%, #eff4f9 100%);
+}
+
+body::before,
+body::after {
+  position: fixed;
+  z-index: -1;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: #c99d56;
+  box-shadow:
+    0 0 0.65rem 0.15rem rgb(180 124 36 / 16%),
+    16vw 24vh 0 -1px rgb(180 124 36 / 45%),
+    84vw 20vh 0 -1px rgb(180 124 36 / 45%),
+    76vw 78vh 0 -1px rgb(180 124 36 / 40%);
+  content: "";
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+body::before {
+  top: 16%;
+  left: 8%;
+}
+
+body::after {
+  right: 12%;
+  bottom: 12%;
+  transform: scale(0.7);
+}
+
+.pagina-acceso {
+  display: grid;
+  min-height: 100vh;
+  padding: 1.25rem;
+  place-items: center;
+}
+
+.tarjeta-acceso {
+  width: min(100%, 28rem);
+  padding: clamp(1.5rem, 6vw, 2.5rem);
+  border: 1px solid rgb(84 42 109 / 12%);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 1rem 3rem rgb(55 38 76 / 10%);
+  backdrop-filter: blur(8px);
+}
+
+.tarjeta-acceso__sobrelinea {
+  margin: 0 0 0.5rem;
+  color: var(--color-azul);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.tarjeta-acceso h1 {
+  margin: 0;
+  color: var(--color-dorado);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.4rem, 10vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.tarjeta-acceso__descripcion {
+  margin: 0.9rem 0 1.8rem;
+  color: var(--color-secundario);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.formulario-acceso {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.formulario-acceso label {
+  margin-top: 0.55rem;
+  color: var(--color-morado);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.formulario-acceso input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgb(84 42 109 / 24%);
+  border-radius: 0.65rem;
+  background: #fff;
+  color: var(--color-texto);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.formulario-acceso input:focus-visible {
+  border-color: var(--color-azul);
+  outline: 3px solid rgb(49 88 129 / 22%);
+  outline-offset: 1px;
+}
+
+.boton-acceso {
+  min-height: 3.15rem;
+  margin-top: 0.9rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-morado);
+  border-radius: 999px;
+  background: var(--color-morado);
+  box-shadow: 0 0.35rem 1rem rgb(84 42 109 / 18%);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.boton-acceso:disabled {
+  border-color: #92879b;
+  background: #92879b;
+  box-shadow: none;
+  cursor: wait;
+}
+
+.boton-acceso:focus-visible,
+.enlace-inicio:focus-visible {
+  outline: 3px solid var(--color-dorado);
+  outline-offset: 3px;
+}
+
+.estado-acceso {
+  min-height: 1.5rem;
+  margin: 0.3rem 0 0;
+  color: var(--color-secundario);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.estado-acceso:empty {
+  min-height: 0;
+}
+
+.estado-acceso--error {
+  color: var(--color-error);
+}
+
+.estado-acceso--exito {
+  color: var(--color-morado);
+}
+
+.enlace-inicio {
+  display: block;
+  width: fit-content;
+  min-height: 2.75rem;
+  margin: 1rem auto 0;
+  padding: 0.65rem 0.25rem;
+  color: var(--color-azul);
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-align: center;
+  text-underline-offset: 0.2em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .boton-acceso:not(:disabled):hover {
+    transform: translateY(-1px);
+    background: #462259;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Inicio de sesión de administración de Fotos Nat XV.">
+    <meta name="theme-color" content="#f5f0f8">
+    <title>Acceso de administración | XV Nathaly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="/css/admin-login.css">
+    <script type="module" src="/js/admin-login.js"></script>
+  </head>
+  <body>
+    <main class="pagina-acceso">
+      <section class="tarjeta-acceso" aria-labelledby="titulo-acceso">
+        <p class="tarjeta-acceso__sobrelinea">XV Nathaly</p>
+        <h1 id="titulo-acceso">Acceso de administración</h1>
+        <p class="tarjeta-acceso__descripcion">
+          Inicia sesión para continuar al espacio privado del evento.
+        </p>
+
+        <form id="formulario-acceso" class="formulario-acceso">
+          <label for="correo">Correo electrónico</label>
+          <input
+            id="correo"
+            name="correo"
+            type="email"
+            autocomplete="username"
+            inputmode="email"
+            required
+          >
+
+          <label for="contrasena">Contraseña</label>
+          <input
+            id="contrasena"
+            name="contrasena"
+            type="password"
+            autocomplete="current-password"
+            required
+          >
+
+          <button id="boton-acceso" class="boton-acceso" type="submit">
+            Iniciar sesión
+          </button>
+          <p
+            id="estado-acceso"
+            class="estado-acceso"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          ></p>
+        </form>
+
+        <a class="enlace-inicio" href="/">Volver a la página principal</a>
+      </section>
+    </main>
+  </body>
+</html>
