@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Galería pública de fotografías del evento.">
+    <meta name="theme-color" content="#f5f0f8">
+    <title>Galería Mágica | XV Nathaly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@500;600&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="/css/galeria.css">
+    <script src="/js/galeria.js" defer></script>
+  </head>
+  <body>
+    <header class="encabezado-galeria">
+      <h1>Galería Mágica</h1>
+      <p>XV NATHALY · UNA NOCHE INOLVIDABLE</p>
+    </header>
+
+    <main>
+      <section id="galeria-fotografias" aria-label="Fotografías del evento">
+      </section>
+      <div id="mensaje-galeria" role="status" aria-live="polite"></div>
+    </main>
+
+    <dialog
+      id="visor-fotografia"
+      class="visor-fotografia"
+      aria-label="Fotografía ampliada"
+    >
+      <button
+        id="cerrar-visor"
+        class="visor-fotografia__cerrar"
+        type="button"
+        aria-label="Cerrar fotografía"
+      >×</button>
+      <img id="imagen-ampliada" class="visor-fotografia__imagen" alt="">
+    </dialog>
+  </body>
+</html>
