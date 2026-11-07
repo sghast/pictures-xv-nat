@@ -60,3 +60,17 @@ export async function obtenerTokenAdministrador(forceRefresh = false) {
 
   return usuarioActual.getIdToken(forceRefresh);
 }
+
+export async function observarSesionAdministrador(callback) {
+  if (typeof callback !== 'function') {
+    throw new TypeError('El observador de sesión debe ser una función.');
+  }
+
+  const { auth, sdk } = await getFirebaseAuth();
+  return sdk.onAuthStateChanged(auth, callback);
+}
+
+export async function cerrarSesionAdministrador() {
+  const { auth, sdk } = await getFirebaseAuth();
+  await sdk.signOut(auth);
+}

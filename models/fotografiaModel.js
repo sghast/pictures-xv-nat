@@ -4,6 +4,7 @@ import { db } from '../config/firebase.js';
 const COLECCION_FOTOGRAFIAS = 'fotografias';
 const LIMITE_PREDETERMINADO = 50;
 const LIMITE_MAXIMO = 100;
+const LIMITE_PAGINA_ADMINISTRACION = 50;
 
 const CAMPOS_REQUERIDOS = [
   'nombreOriginal',
@@ -73,6 +74,66 @@ export async function listarFotografias(limite = LIMITE_PREDETERMINADO) {
     id: documento.id,
     ...documento.data(),
   }));
+}
+
+export async function listarFotografiasPaginadas({ limite = 20, cursor } = {}) {
+  if (!Number.isInteger(limite) || limite < 1 || limite > LIMITE_PAGINA_ADMINISTRACION) {
+    throw new RangeError(
+      `El límite de página debe ser un entero entre 1 y ${LIMITE_PAGINA_ADMINISTRACION}.`,
+    );
+  }
+
+  let consulta = db
+    .collection(COLECCION_FOTOGRAFIAS)
+    .orderBy('fechaSubida', 'desc');
+
+  if (cursor !== undefined) {
+    if (typeof cursor !== 'string' || !cursor.trim() || cursor.includes('/')) {
+      throw new TypeError('El cursor de paginación no es válido.');
+    }
+
+    const documentoCursor = await db
+      .collection(COLECCION_FOTOGRAFIAS)
+      .doc(cursor)
+      .get();
+
+    if (!documentoCursor.exists) {
+      return null;
+    }
+
+    consulta = consulta.startAfter(documentoCursor);
+  }
+
+  const resultado = await consulta.limit(limite + 1).get();
+  const hayMas = resultado.docs.length > limite;
+  const documentosPagina = resultado.docs.slice(0, limite);
+
+  return {
+    fotografias: documentosPagina.map((documento) => ({
+      id: documento.id,
+      ...documento.data(),
+    })),
+    siguienteCursor: hayMas
+      ? documentosPagina[documentosPagina.length - 1].id
+      : null,
+  };
+}
+
+export async function obtenerEstadisticasFotografias() {
+  const referenciaColeccion = db.collection(COLECCION_FOTOGRAFIAS);
+  const [resultadoConteo, resultadoUltimaFotografia] = await Promise.all([
+    referenciaColeccion.count().get(),
+    referenciaColeccion
+      .orderBy('fechaSubida', 'desc')
+      .limit(1)
+      .get(),
+  ]);
+  const ultimaFotografia = resultadoUltimaFotografia.docs[0];
+
+  return {
+    totalFotografias: resultadoConteo.data().count,
+    fechaUltimaSubida: ultimaFotografia?.get('fechaSubida') ?? null,
+  };
 }
 
 export async function obtenerFotografiaPorId(id) {

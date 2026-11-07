@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Panel privado de fotografías de XV Nathaly.">
+    <meta name="theme-color" content="#f5f0f8">
+    <title>Administración | XV Nathaly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="/css/admin-dashboard.css">
+    <script type="module" src="/js/admin-dashboard.js"></script>
+  </head>
+  <body>
+    <div class="pagina-admin">
+      <header class="encabezado-admin">
+        <div>
+          <p class="encabezado-admin__sobrelinea">XV Nathaly</p>
+          <h1>Recuerdos de una noche mágica</h1>
+          <p class="encabezado-admin__subtitulo">Panel de administración</p>
+        </div>
+        <button id="cerrar-sesion" class="boton boton--secundario" type="button" hidden>
+          Cerrar sesión
+        </button>
+      </header>
+
+      <main id="panel-admin" class="panel-admin" hidden>
+        <section class="estadisticas" aria-label="Estadísticas de fotografías">
+          <article class="tarjeta-estadistica">
+            <p class="tarjeta-estadistica__etiqueta">Fotografías almacenadas</p>
+            <p id="total-fotografias" class="tarjeta-estadistica__valor">—</p>
+          </article>
+          <article class="tarjeta-estadistica">
+            <p class="tarjeta-estadistica__etiqueta">Última fotografía subida</p>
+            <p id="ultima-subida" class="tarjeta-estadistica__valor tarjeta-estadistica__valor--fecha">
+              —
+            </p>
+          </article>
+        </section>
+
+        <section class="seccion-fotografias" aria-labelledby="titulo-fotografias">
+          <div class="barra-fotografias">
+            <div>
+              <p class="barra-fotografias__sobrelinea">Álbum del evento</p>
+              <h2 id="titulo-fotografias">Fotografías</h2>
+            </div>
+            <button id="actualizar" class="boton boton--principal" type="button">
+              Actualizar información
+            </button>
+          </div>
+
+          <p id="estado-fotografias" class="estado-fotografias" role="status" aria-live="polite"></p>
+          <div id="galeria-admin" class="galeria-admin" aria-label="Fotografías almacenadas"></div>
+
+          <nav class="paginacion" aria-label="Paginación de fotografías">
+            <button id="pagina-anterior" class="boton boton--secundario" type="button" disabled>
+              Anterior
+            </button>
+            <span id="indicador-pagina" class="indicador-pagina">Página 1</span>
+            <button id="pagina-siguiente" class="boton boton--secundario" type="button" disabled>
+              Siguiente
+            </button>
+          </nav>
+        </section>
+      </main>
+
+      <section id="estado-inicial" class="estado-inicial" role="status" aria-live="polite">
+        <p id="mensaje-inicial">Comprobando la sesión de administrador…</p>
+        <button id="reintentar-acceso" class="boton boton--principal" type="button" hidden>
+          Reintentar
+        </button>
+      </section>
+    </div>
+  </body>
+</html>

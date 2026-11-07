@@ -155,6 +155,7 @@ formulario.addEventListener('submit', async (evento) => {
       'exito',
     );
     campoContrasena.value = '';
+    window.location.replace('/admin/');
   } catch (error) {
     mostrarEstado(obtenerMensajeErrorAutorizacion(error), 'error');
   } finally {
