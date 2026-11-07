@@ -7,5 +7,6 @@ node_modules/
 *.key
 *serviceAccount*.json
 *-firebase-adminsdk-*.json
+config/serviceAccountKey.json
 tmp/
 temp/
