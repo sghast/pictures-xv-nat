@@ -4,7 +4,7 @@ import { db } from '../config/firebase.js';
 const COLECCION_FOTOGRAFIAS = 'fotografias';
 const LIMITE_PREDETERMINADO = 50;
 const LIMITE_MAXIMO = 100;
-const LIMITE_PAGINA_ADMINISTRACION = 50;
+const LIMITE_MAXIMO_PAGINACION = 50;
 
 const CAMPOS_REQUERIDOS = [
   'nombreOriginal',
@@ -76,10 +76,10 @@ export async function listarFotografias(limite = LIMITE_PREDETERMINADO) {
   }));
 }
 
-export async function listarFotografiasPaginadas({ limite = 20, cursor } = {}) {
-  if (!Number.isInteger(limite) || limite < 1 || limite > LIMITE_PAGINA_ADMINISTRACION) {
+export async function listarFotografiasPaginadas({ limite = 40, cursor } = {}) {
+  if (!Number.isInteger(limite) || limite < 1 || limite > LIMITE_MAXIMO_PAGINACION) {
     throw new RangeError(
-      `El límite de página debe ser un entero entre 1 y ${LIMITE_PAGINA_ADMINISTRACION}.`,
+      `El límite de página debe ser un entero entre 1 y ${LIMITE_MAXIMO_PAGINACION}.`,
     );
   }
 
@@ -88,7 +88,12 @@ export async function listarFotografiasPaginadas({ limite = 20, cursor } = {}) {
     .orderBy('fechaSubida', 'desc');
 
   if (cursor !== undefined) {
-    if (typeof cursor !== 'string' || !cursor.trim() || cursor.includes('/')) {
+    if (
+      typeof cursor !== 'string'
+      || !cursor.trim()
+      || cursor.trim() !== cursor
+      || cursor.includes('/')
+    ) {
       throw new TypeError('El cursor de paginación no es válido.');
     }
 

@@ -337,6 +337,46 @@ main {
   color: var(--color-error);
 }
 
+.boton-cargar-mas {
+  display: flex;
+  min-height: 2.9rem;
+  margin: 1.5rem auto 0;
+  padding: 0.75rem 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-gold);
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-accent), #694486);
+  box-shadow: 0 0.35rem 1rem rgb(55 38 76 / 14%);
+  color: #fff;
+  cursor: pointer;
+  font-family: Montserrat, "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.boton-cargar-mas[hidden] {
+  display: none;
+}
+
+.boton-cargar-mas:hover:not(:disabled) {
+  box-shadow: 0 0.55rem 1.2rem rgb(55 38 76 / 20%);
+}
+
+.boton-cargar-mas:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 4px;
+}
+
+.boton-cargar-mas:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
 .visor-fotografia {
   position: fixed;
   width: min(94vw, 1100px);

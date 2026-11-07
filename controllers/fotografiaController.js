@@ -1,7 +1,7 @@
 import cloudinary from '../config/cloudinary.js';
 import {
   crearFotografia,
-  listarFotografias as listarFotografiasModel,
+  listarFotografiasPaginadas,
 } from '../models/fotografiaModel.js';
 import { subirFotografiaCloudinary } from '../services/fotografiaService.js';
 
@@ -52,17 +52,41 @@ export async function subirFotografia(req, res, next) {
 }
 
 export async function listarFotografias(req, res, next) {
+  const limite = req.query.limite === undefined ? 40 : Number(req.query.limite);
+  const cursor = req.query.cursor;
+
+  if (
+    !Number.isInteger(limite)
+    || limite < 1
+    || limite > 50
+    || (
+      cursor !== undefined
+      && (
+        typeof cursor !== 'string'
+        || !cursor.trim()
+        || cursor.trim() !== cursor
+        || cursor.includes('/')
+      )
+    )
+  ) {
+    return res.status(400).json({
+      error: 'Los parámetros de consulta no son válidos.',
+    });
+  }
+
   try {
-    const limite = req.query.limite === undefined
-      ? undefined
-      : Number(req.query.limite);
-    const fotografias = limite === undefined
-      ? await listarFotografiasModel()
-      : await listarFotografiasModel(limite);
+    const pagina = await listarFotografiasPaginadas({ limite, cursor });
+
+    if (!pagina) {
+      return res.status(400).json({
+        error: 'El cursor de paginación no es válido.',
+      });
+    }
 
     return res.status(200).json({
-      fotografias,
-      cantidad: fotografias.length,
+      fotografias: pagina.fotografias,
+      cantidad: pagina.fotografias.length,
+      siguienteCursor: pagina.siguienteCursor,
     });
   } catch (error) {
     return next(error);
