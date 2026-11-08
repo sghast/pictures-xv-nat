@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import adminRoutes from './routes/adminRoutes.js';
@@ -9,6 +10,30 @@ const currentDirectory = path.dirname(currentFile);
 
 const app = express();
 
+app.use(helmet({
+  contentSecurityPolicy: {
+    reportOnly: true,
+    useDefaults: false,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", 'https://www.gstatic.com'],
+      styleSrc: ["'self'", 'https://fonts.googleapis.com'],
+      imgSrc: ["'self'", 'blob:', 'https://res.cloudinary.com'],
+      connectSrc: [
+        "'self'",
+        'https://identitytoolkit.googleapis.com',
+        'https://securetoken.googleapis.com',
+        'https://fotos-nat-xv.firebaseapp.com',
+      ],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      frameSrc: ['https://fotos-nat-xv.firebaseapp.com'],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'self'"],
+    },
+  },
+}));
 app.use(express.static(path.join(currentDirectory, 'public')));
 app.use('/api/fotografias', fotografiaRoutes);
 app.use('/api/admin', adminRoutes);

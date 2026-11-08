@@ -1,15 +1,32 @@
 import 'dotenv/config';
-import { applicationDefault, getApps, initializeApp } from 'firebase-admin/app';
+import {
+  applicationDefault,
+  cert,
+  getApps,
+  initializeApp,
+} from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim()) {
-  throw new Error('Falta la variable de entorno GOOGLE_APPLICATION_CREDENTIALS.');
+function obtenerCredencialFirebase() {
+  const cuentaServicioJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
+
+  if (!cuentaServicioJson) {
+    return applicationDefault();
+  }
+
+  try {
+    return cert(JSON.parse(cuentaServicioJson));
+  } catch {
+    throw new Error(
+      'FIREBASE_SERVICE_ACCOUNT_JSON debe contener credenciales de servicio válidas en formato JSON.',
+    );
+  }
 }
 
 const existingDefaultApp = getApps().find((app) => app.name === '[DEFAULT]');
 
 export const firebaseApp = existingDefaultApp ?? initializeApp({
-  credential: applicationDefault(),
+  credential: obtenerCredencialFirebase(),
 });
 
 export const db = getFirestore(firebaseApp);
