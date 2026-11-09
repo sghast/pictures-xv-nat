@@ -44,6 +44,13 @@ function crearTarjeta(fotografia) {
   imagen.alt = nombreOriginal;
   imagen.loading = 'lazy';
 
+  const enlaceDescarga = document.createElement('a');
+  enlaceDescarga.className = 'enlace-descarga';
+  enlaceDescarga.href = obtenerUrlSegura(fotografia.urlDescarga);
+  enlaceDescarga.download = '';
+  enlaceDescarga.textContent = 'Descargar recuerdo';
+  enlaceDescarga.setAttribute('aria-label', `Descargar fotografía: ${nombreOriginal}`);
+
   boton.addEventListener('click', () => {
     imagenAmpliada.src = obtenerUrlSegura(fotografia.urlOriginal);
     imagenAmpliada.alt = nombreOriginal;
@@ -51,7 +58,7 @@ function crearTarjeta(fotografia) {
   });
 
   boton.append(imagen);
-  tarjeta.append(boton);
+  tarjeta.append(boton, enlaceDescarga);
 
   return tarjeta;
 }

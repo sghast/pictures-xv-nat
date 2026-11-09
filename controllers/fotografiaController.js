@@ -5,6 +5,33 @@ import {
 } from '../models/fotografiaModel.js';
 import { subirFotografiaCloudinary } from '../services/fotografiaService.js';
 
+const EXTENSIONES_DESCARGA = new Map([
+  ['jpeg', 'jpg'],
+  ['jpg', 'jpg'],
+  ['png', 'png'],
+  ['webp', 'webp'],
+]);
+
+function serializarFotografiaPublica(fotografia) {
+  if (typeof fotografia.publicId !== 'string' || !fotografia.publicId.trim()) {
+    throw new TypeError('La fotografía no tiene un identificador de almacenamiento válido.');
+  }
+
+  return {
+    id: fotografia.id,
+    nombreOriginal: fotografia.nombreOriginal,
+    urlOriginal: fotografia.urlOriginal,
+    urlMiniatura: fotografia.urlMiniatura,
+    urlDescarga: cloudinary.url(fotografia.publicId, {
+      secure: true,
+      resource_type: 'image',
+      type: 'upload',
+      format: EXTENSIONES_DESCARGA.get(fotografia.formato.toLowerCase()),
+      flags: 'attachment',
+    }),
+  };
+}
+
 export async function subirFotografia(req, res, next) {
   if (!req.file) {
     return res.status(400).json({
@@ -84,7 +111,7 @@ export async function listarFotografias(req, res, next) {
     }
 
     return res.status(200).json({
-      fotografias: pagina.fotografias,
+      fotografias: pagina.fotografias.map(serializarFotografiaPublica),
       cantidad: pagina.fotografias.length,
       siguienteCursor: pagina.siguienteCursor,
     });

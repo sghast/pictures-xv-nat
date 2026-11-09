@@ -89,6 +89,41 @@ main {
   outline-offset: 3px;
 }
 
+.enlace-descarga,
+.enlace-inicio {
+  color: var(--color-accent);
+  font-family: Montserrat, "Segoe UI", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.enlace-descarga {
+  display: block;
+  min-height: 2.75rem;
+  padding: 0.8rem 0.55rem;
+}
+
+.enlace-inicio {
+  display: inline-flex;
+  min-height: 2.75rem;
+  margin-top: 0.75rem;
+  padding: 0.7rem 1rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(180 124 36 / 40%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 70%);
+}
+
+.enlace-descarga:focus-visible,
+.enlace-inicio:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
 #mensaje-galeria {
   margin: 2rem auto 0;
   color: var(--color-muted);
@@ -306,7 +341,9 @@ main {
 }
 
 .boton-fotografia:focus-visible,
-.visor-fotografia__cerrar:focus-visible {
+.visor-fotografia__cerrar:focus-visible,
+.enlace-descarga:focus-visible,
+.enlace-inicio:focus-visible {
   outline: 3px solid var(--color-gold);
   outline-offset: 3px;
 }
@@ -460,6 +497,11 @@ main {
 
   .tarjeta-fotografia:hover .boton-fotografia img {
     transform: scale(1.025);
+  }
+
+  .enlace-descarga:hover,
+  .enlace-inicio:hover {
+    color: #462259;
   }
 }
 
