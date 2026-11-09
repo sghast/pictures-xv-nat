@@ -2,10 +2,7 @@ const TAMANO_MAXIMO = 10 * 1024 * 1024;
 const TIPOS_PERMITIDOS = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const formulario = document.querySelector('#formulario-fotografia');
-const entradasArchivo = [
-  document.querySelector('#archivo-galeria'),
-  document.querySelector('#archivo-camara'),
-];
+const entradaArchivo = document.querySelector('#archivo-camara');
 const vistaPrevia = document.querySelector('#vista-previa');
 const imagenPrevia = document.querySelector('#imagen-previa');
 const nombreArchivo = document.querySelector('#nombre-archivo');
@@ -49,10 +46,8 @@ function liberarVistaPrevia() {
 function limpiarSeleccion() {
   fotografiaSeleccionada = null;
   validacionActual += 1;
-  entradasArchivo.forEach((entrada) => {
-    entrada.value = '';
-    entrada.disabled = false;
-  });
+  entradaArchivo.value = '';
+  entradaArchivo.disabled = false;
   liberarVistaPrevia();
   vistaPrevia.hidden = true;
   botonSubir.disabled = true;
@@ -134,14 +129,10 @@ async function seleccionarFotografia(archivo) {
   }
 }
 
-entradasArchivo.forEach((entrada) => {
-  entrada.addEventListener('change', () => {
-    const archivo = entrada.files?.[0];
-    entradasArchivo.forEach((otraEntrada) => {
-      otraEntrada.value = '';
-    });
-    void seleccionarFotografia(archivo);
-  });
+entradaArchivo.addEventListener('change', () => {
+  const archivo = entradaArchivo.files?.[0];
+  entradaArchivo.value = '';
+  void seleccionarFotografia(archivo);
 });
 
 botonQuitar.addEventListener('click', () => {
@@ -160,9 +151,7 @@ formulario.addEventListener('submit', async (evento) => {
   formularioDatos.append('fotografia', fotografiaSeleccionada);
   subiendo = true;
   botonSubir.disabled = true;
-  entradasArchivo.forEach((entrada) => {
-    entrada.disabled = true;
-  });
+  entradaArchivo.disabled = true;
   botonSubir.textContent = 'Subiendo fotografía…';
   mostrarEstado('Subiendo fotografía…');
 
@@ -198,9 +187,7 @@ formulario.addEventListener('submit', async (evento) => {
     );
   } finally {
     subiendo = false;
-    entradasArchivo.forEach((entrada) => {
-      entrada.disabled = false;
-    });
+    entradaArchivo.disabled = false;
     botonSubir.textContent = 'Compartir fotografía';
     botonSubir.disabled = !fotografiaSeleccionada;
   }

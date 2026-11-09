@@ -21,46 +21,32 @@
       <p class="encabezado-inicio__evento">XV NATHALY · UNA NOCHE INOLVIDABLE</p>
       <p class="encabezado-inicio__bienvenida">
         Cada instante se vuelve más especial cuando lo compartimos.
-        Elige una fotografía de esta noche para guardar el recuerdo en nuestro álbum.
+        Toma una fotografía para guardar este recuerdo en nuestro álbum.
       </p>
     </header>
 
     <main class="contenido-inicio">
       <form id="formulario-fotografia" class="tarjeta-subida" action="/api/fotografias" method="post" enctype="multipart/form-data">
         <fieldset class="opciones-seleccion">
-          <legend>Elige cómo compartir tu fotografía</legend>
+          <legend>Toma una fotografía para compartir</legend>
           <p id="ayuda-seleccion" class="texto-ayuda">
-            Selecciona una imagen JPEG, PNG o WebP de hasta 10 MB.
+            Usa la cámara de tu dispositivo. Se aceptan imágenes JPEG, PNG o WebP de hasta 10 MB.
           </p>
 
           <div class="opciones-seleccion__rejilla">
-            <label class="opcion-archivo" for="archivo-galeria">
-              <input
-                class="entrada-archivo-visualmente-oculta"
-                id="archivo-galeria"
-                name="archivo-galeria"
-                type="file"
-                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-                aria-describedby="ayuda-seleccion"
-              >
-              <span class="opcion-archivo__icono" aria-hidden="true">✧</span>
-              <span class="opcion-archivo__titulo">Elegir fotografía</span>
-              <span class="opcion-archivo__detalle">Desde tus archivos o galería</span>
-            </label>
-
             <label class="opcion-archivo" for="archivo-camara">
               <input
                 class="entrada-archivo-visualmente-oculta"
                 id="archivo-camara"
                 name="archivo-camara"
                 type="file"
-                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                accept="image/*"
                 capture="environment"
                 aria-describedby="ayuda-seleccion"
               >
               <span class="opcion-archivo__icono" aria-hidden="true">✦</span>
               <span class="opcion-archivo__titulo">Tomar fotografía</span>
-              <span class="opcion-archivo__detalle">Cámara trasera si está disponible; también puedes elegir un archivo</span>
+              <span class="opcion-archivo__detalle">Se abrirá la cámara trasera si tu dispositivo lo permite</span>
             </label>
           </div>
         </fieldset>
