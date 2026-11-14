@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 
 const ENDPOINT = 'https://pictures-xv-nat-test.onrender.com/api/fotografias';
 const CAMPO_ARCHIVO = 'fotografia';
+const COOKIE_PRUEBA = process.env.UPLOAD_TEST_COOKIE?.trim();
 const TAMANO_MAXIMO = 10 * 1024 * 1024;
 const SOLICITUDES_PREDETERMINADAS = 2;
 const CONCURRENCIA_PREDETERMINADA = 2;
@@ -123,6 +124,7 @@ async function enviarFotografia(contenido, formato, numero, idEjecucion) {
     const respuesta = await fetch(ENDPOINT, {
       method: 'POST',
       body: formulario,
+      ...(COOKIE_PRUEBA ? { headers: { Cookie: COOKIE_PRUEBA } } : {}),
       signal: AbortSignal.timeout(120_000),
     });
     const duracionMs = performance.now() - inicio;
@@ -142,9 +144,11 @@ async function enviarFotografia(contenido, formato, numero, idEjecucion) {
       exitosa,
       error: exitosa
         ? null
-        : typeof resultado?.error === 'string'
-          ? resultado.error
-          : 'La respuesta no confirmó la subida.',
+        : COOKIE_PRUEBA
+          ? 'La respuesta no confirmó la subida.'
+          : typeof resultado?.error === 'string'
+            ? resultado.error
+            : 'La respuesta no confirmó la subida.',
     };
   } catch (error) {
     return {
