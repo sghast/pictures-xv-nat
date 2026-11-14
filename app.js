@@ -1,7 +1,9 @@
+import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { crearMiddlewaresCookieVisitante } from './middlewares/cookieVisitanteSubidas.js';
 import adminRoutes from './routes/adminRoutes.js';
 import fotografiaRoutes from './routes/fotografiaRoutes.js';
 
@@ -9,6 +11,9 @@ const currentFile = fileURLToPath(import.meta.url);
 const currentDirectory = path.dirname(currentFile);
 
 const app = express();
+const { emitirCookieEnInicio } = crearMiddlewaresCookieVisitante(
+  process.env.UPLOAD_COOKIE_SECRET,
+);
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -34,6 +39,7 @@ app.use(helmet({
     },
   },
 }));
+app.use(emitirCookieEnInicio);
 app.use(express.static(path.join(currentDirectory, 'public')));
 app.use('/api/fotografias', fotografiaRoutes);
 app.use('/api/admin', adminRoutes);

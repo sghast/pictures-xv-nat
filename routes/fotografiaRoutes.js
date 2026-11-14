@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { Router } from 'express';
-import { rateLimit } from 'express-rate-limit';
+import { crearMiddlewaresCookieVisitante } from '../middlewares/cookieVisitanteSubidas.js';
+import { crearLimitadoresSubida } from '../middlewares/limitadoresSubida.js';
 import { subirFotografia as subirFotografiaMiddleware } from '../middlewares/subirFotografia.js';
 import {
   listarFotografias as listarFotografiasController,
@@ -36,20 +37,25 @@ function leerEnteroPositivoEnv(nombre, valorPredeterminado) {
 
 const limiteSubidas = leerEnteroPositivoEnv('UPLOAD_RATE_LIMIT_MAX', 5);
 const ventanaSubidasMs = leerEnteroPositivoEnv('UPLOAD_RATE_LIMIT_WINDOW_MS', 900000);
+const limiteSubidasIp = leerEnteroPositivoEnv('UPLOAD_RATE_LIMIT_IP_MAX', 1000);
 
-const limitarSubidasFotografias = rateLimit({
-  windowMs: ventanaSubidasMs,
-  limit: limiteSubidas,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (req, res) => {
-    res.status(429).json({
-      error: 'Has alcanzado el límite de subidas. Inténtalo de nuevo más tarde.',
-    });
-  },
+const { limitarPorIp, limitarPorNavegador } = crearLimitadoresSubida({
+  limiteNavegador: limiteSubidas,
+  limiteIp: limiteSubidasIp,
+  ventanaMs: ventanaSubidasMs,
 });
+const { requerirCookieValida } = crearMiddlewaresCookieVisitante(
+  process.env.UPLOAD_COOKIE_SECRET,
+);
 
-router.post('/', limitarSubidasFotografias, subirFotografiaMiddleware, subirFotografiaController);
+router.post(
+  '/',
+  limitarPorIp,
+  requerirCookieValida,
+  limitarPorNavegador,
+  subirFotografiaMiddleware,
+  subirFotografiaController,
+);
 router.get('/', listarFotografiasController);
 
 export default router;
