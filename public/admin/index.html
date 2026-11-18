@@ -48,9 +48,41 @@
               <p class="barra-fotografias__sobrelinea">Álbum del evento</p>
               <h2 id="titulo-fotografias">Fotografías</h2>
             </div>
-            <button id="actualizar" class="boton boton--principal" type="button">
-              Actualizar información
-            </button>
+            <div class="acciones-fotografias">
+              <button
+                id="descargar-recuerdos"
+                class="boton boton--secundario boton--descargar"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                  width="19"
+                  height="19"
+                >
+                  <path
+                    d="M3.75 6.75h6l1.8 2h8.7a1.5 1.5 0 0 1 1.5 1.5v7.5a1.5 1.5 0 0 1-1.5 1.5h-16.5a1.5 1.5 0 0 1-1.5-1.5v-9.5a1.5 1.5 0 0 1 1.5-1.5Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                  />
+                  <path
+                    d="M2.5 10.25h19"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-width="1.7"
+                  />
+                </svg>
+                <span id="texto-descargar-recuerdos">Descargar todos los recuerdos</span>
+              </button>
+              <button id="actualizar" class="boton boton--principal" type="button">
+                Actualizar información
+              </button>
+            </div>
           </div>
 
           <p id="estado-fotografias" class="estado-fotografias" role="status" aria-live="polite"></p>

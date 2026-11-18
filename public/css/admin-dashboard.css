@@ -169,6 +169,12 @@ body::after {
   gap: 0.9rem;
 }
 
+.acciones-fotografias {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
 .barra-fotografias h2 {
   margin: 0;
   color: var(--color-morado);
@@ -211,6 +217,28 @@ body::after {
   border-color: rgb(49 88 129 / 30%);
   background: rgb(255 255 255 / 78%);
   color: var(--color-azul);
+}
+
+.boton--descargar {
+  gap: 0.55rem;
+}
+
+.boton--descargar svg {
+  flex: 0 0 auto;
+}
+
+.boton--descargando {
+  cursor: wait;
+}
+
+.boton--descargando::before {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid rgb(49 88 129 / 25%);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  content: "";
+  animation: girar 800ms linear infinite;
 }
 
 .boton--eliminar {
@@ -261,6 +289,12 @@ body::after {
 
 .estado-fotografias--error {
   color: var(--color-error);
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .galeria-admin {
@@ -398,6 +432,11 @@ body::after {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .acciones-fotografias {
+    flex-direction: row;
+    align-items: center;
   }
 
   .galeria-admin {
