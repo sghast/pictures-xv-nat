@@ -124,6 +124,29 @@ export async function listarFotografiasPaginadas({ limite = 40, cursor } = {}) {
   };
 }
 
+export async function* iterarFotografiasParaDescarga() {
+  let consulta = db
+    .collection(COLECCION_FOTOGRAFIAS)
+    .orderBy('fechaSubida', 'desc');
+
+  while (true) {
+    const resultado = await consulta.limit(LIMITE_MAXIMO_PAGINACION).get();
+
+    for (const documento of resultado.docs) {
+      yield {
+        id: documento.id,
+        ...documento.data(),
+      };
+    }
+
+    if (resultado.docs.length < LIMITE_MAXIMO_PAGINACION) {
+      return;
+    }
+
+    consulta = consulta.startAfter(resultado.docs[resultado.docs.length - 1]);
+  }
+}
+
 export async function obtenerEstadisticasFotografias() {
   const referenciaColeccion = db.collection(COLECCION_FOTOGRAFIAS);
   const [resultadoConteo, resultadoUltimaFotografia] = await Promise.all([

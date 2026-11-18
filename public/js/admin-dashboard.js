@@ -11,6 +11,8 @@ const mensajeInicial = document.querySelector('#mensaje-inicial');
 const botonReintentarAcceso = document.querySelector('#reintentar-acceso');
 const botonCerrarSesion = document.querySelector('#cerrar-sesion');
 const botonActualizar = document.querySelector('#actualizar');
+const botonDescargarRecuerdos = document.querySelector('#descargar-recuerdos');
+const textoDescargarRecuerdos = document.querySelector('#texto-descargar-recuerdos');
 const botonPaginaAnterior = document.querySelector('#pagina-anterior');
 const botonPaginaSiguiente = document.querySelector('#pagina-siguiente');
 const indicadorPagina = document.querySelector('#indicador-pagina');
@@ -25,6 +27,7 @@ let indicePagina = 0;
 let siguienteCursor = null;
 let solicitudEnCurso = false;
 let eliminacionEnCurso = false;
+let descargaEnCurso = false;
 let usuarioAutenticado = null;
 
 function mostrarEstadoInicial(mensaje, permitirReintento = false) {
@@ -244,15 +247,108 @@ function validarRespuestaEstadisticas(resultado) {
 }
 
 function actualizarControles() {
-  const controlesOcupados = solicitudEnCurso || eliminacionEnCurso;
+  const controlesOcupados = solicitudEnCurso || eliminacionEnCurso || descargaEnCurso;
   botonPaginaAnterior.disabled = controlesOcupados || indicePagina === 0;
   botonPaginaSiguiente.disabled = controlesOcupados || !siguienteCursor;
   botonActualizar.disabled = controlesOcupados;
+  botonDescargarRecuerdos.disabled = controlesOcupados;
   botonCerrarSesion.disabled = controlesOcupados;
   contenedorGaleria.querySelectorAll('.boton--eliminar').forEach((boton) => {
     boton.disabled = controlesOcupados;
   });
   indicadorPagina.textContent = `Página ${indicePagina + 1}`;
+}
+
+async function descargarTodosLosRecuerdos() {
+  if (solicitudEnCurso || eliminacionEnCurso || descargaEnCurso) {
+    return;
+  }
+
+  if (typeof window.showSaveFilePicker !== 'function') {
+    mostrarEstadoFotografias(
+      'Este navegador no permite guardar el ZIP en streaming. Usa una versión reciente de Chrome o Edge.',
+      true,
+    );
+    return;
+  }
+
+  descargaEnCurso = true;
+  botonDescargarRecuerdos.classList.add('boton--descargando');
+  botonDescargarRecuerdos.setAttribute('aria-busy', 'true');
+  textoDescargarRecuerdos.textContent = 'Preparando archivo ZIP…';
+  actualizarControles();
+  mostrarEstadoFotografias('Preparando y descargando todos los recuerdos…');
+
+  let archivoEscribible;
+
+  try {
+    const [archivo, token] = await Promise.all([
+      window.showSaveFilePicker({
+        suggestedName: 'recuerdos_xv.zip',
+        types: [{
+          description: 'Archivo ZIP',
+          accept: { 'application/zip': ['.zip'] },
+        }],
+      }),
+      obtenerTokenAdministrador(),
+    ]);
+    textoDescargarRecuerdos.textContent = 'Descargando recuerdos…';
+    mostrarEstadoFotografias('El servidor está generando el ZIP en streaming…');
+
+    const respuesta = await fetch('/api/admin/fotografias/descargar', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (respuesta.status === 401) {
+      await respuesta.body?.cancel();
+      throw crearError('backend/unauthorized', 'La sesión ya no es válida.');
+    }
+
+    if (respuesta.status === 403) {
+      await respuesta.body?.cancel();
+      throw crearError('backend/forbidden', 'La cuenta no tiene permisos de administrador.');
+    }
+
+    if (!respuesta.ok) {
+      await respuesta.body?.cancel();
+      throw crearError('backend/download', 'No fue posible generar el archivo ZIP.');
+    }
+
+    if (
+      respuesta.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase()
+        !== 'application/zip'
+      || !respuesta.body
+    ) {
+      await respuesta.body?.cancel();
+      throw crearError('backend/invalid-response', 'El servidor no devolvió un ZIP válido.');
+    }
+
+    archivoEscribible = await archivo.createWritable();
+    await respuesta.body.pipeTo(archivoEscribible);
+    archivoEscribible = null;
+    mostrarEstadoFotografias('La descarga de recuerdos_xv.zip finalizó correctamente.');
+  } catch (error) {
+    if (archivoEscribible) {
+      await archivoEscribible.abort().catch(() => {});
+    }
+
+    if (error.code === 'backend/unauthorized' || error.code === 'backend/forbidden') {
+      await manejarError(error, 'fotografias');
+    } else if (error.name === 'AbortError') {
+      mostrarEstadoFotografias('La descarga se canceló.');
+    } else {
+      mostrarEstadoFotografias(
+        'No fue posible descargar todos los recuerdos. Inténtalo nuevamente.',
+        true,
+      );
+    }
+  } finally {
+    descargaEnCurso = false;
+    botonDescargarRecuerdos.classList.remove('boton--descargando');
+    botonDescargarRecuerdos.removeAttribute('aria-busy');
+    textoDescargarRecuerdos.textContent = 'Descargar todos los recuerdos';
+    actualizarControles();
+  }
 }
 
 async function solicitarPagina(cursor) {
@@ -453,6 +549,8 @@ async function manejarCambioDeSesion(usuario) {
 botonActualizar.addEventListener('click', () => {
   actualizarInformacion(true);
 });
+
+botonDescargarRecuerdos.addEventListener('click', descargarTodosLosRecuerdos);
 
 botonPaginaAnterior.addEventListener('click', () => {
   if (indicePagina > 0) {
